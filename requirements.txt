@@ -1,0 +1,14 @@
+numpy
+pandas
+scikit-learn
+xgboost
+shap
+lime
+flask
+joblib
+matplotlib
+seaborn
+plotly
+sqlalchemy
+mysql-connector-python   # or use sqlite3 (built-in)
+pytest

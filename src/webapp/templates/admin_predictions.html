@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Prediction Records{% endblock %}
+
+{% block content %}
+<h4>Prediction Results</h4>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>User</th>
+            <th>Disease</th>
+            <th>Probability</th>
+            <th>Prediction</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for rec in records %}
+        {% for disease, res in rec.results.items() %}
+        <tr>
+            <td>{{ rec.username }}</td>
+            <td>{{ disease }}</td>
+            <td>{{ (res.probability * 100) | round(2) }}%</td>
+            <td>
+                {% if res.prediction == 1 %}
+                    <span class="badge bg-danger">Positive</span>
+                {% else %}
+                    <span class="badge bg-success">Negative</span>
+                {% endif %}
+            </td>
+            <td>{{ rec.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

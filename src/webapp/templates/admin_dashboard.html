@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | AI Disease Prediction{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- ================= HEADER ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Admin Dashboard</h2>
+
+    <div>
+        <a href="{{ url_for('admin_analytics') }}" class="btn btn-outline-primary me-2">
+            <i class="fa-solid fa-chart-bar"></i> View Analytics
+        </a>
+
+        <a href="{{ url_for('admin_export_report') }}" class="btn btn-outline-success me-2">
+            <i class="fa-solid fa-file-pdf"></i> Export Report
+        </a>
+
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+</div>
+
+
+    <!-- ================= SUMMARY CARDS ================= -->
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Total Predictions</h6>
+                    <h3 class="fw-bold">{{ records|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Unique Users</h6>
+                    <h3 class="fw-bold">
+                        {{ records | map(attribute='username') | unique | list | length }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">System Status</h6>
+                    <h5 class="text-success fw-bold">Operational</h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= PREDICTION RECORDS ================= -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+            Prediction Records
+        </div>
+
+        <div class="card-body p-0">
+            {% if records %}
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Timestamp</th>
+                                <th>Diseases Predicted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in records %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ rec.username }}</td>
+                                <td>{{ rec.timestamp }}</td>
+                                <td>
+                                    {% for d in rec.results.keys() %}
+                                        <span class="badge bg-primary me-1">{{ d }}</span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted p-3">No prediction records found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

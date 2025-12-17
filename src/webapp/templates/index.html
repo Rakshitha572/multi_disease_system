@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Multi-Disease Prediction — Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width:900px; margin:30px auto; }
+    textarea { width:100%; height:220px; font-family: monospace; }
+    .btn { padding:10px 14px; background:#1976d2; color:white; border:none; border-radius:6px; cursor:pointer; }
+    .note { color:#666; font-size:0.9rem; }
+  </style>
+</head>
+<body>
+  <h2>Multi-Disease Prediction — Demo</h2>
+  <p class="note">Paste a single JSON object with clinical attributes (example shown). You don't need to provide every feature — missing fields will be imputed.</p>
+
+  <form action="{{ url_for('predict') }}" method="post">
+    <textarea name="record" id="record">{{ example }}</textarea>
+    <br/><br/>
+    <button class="btn" type="submit">Predict</button>
+  </form>
+
+  <hr/>
+  <h4>Notes</h4>
+  <ul>
+    <li>If you prefer, send a JSON POST to <code>/predict</code> with <code>application/json</code>.</li>
+    <li>Results and inputs are logged to a local SQLite DB (<code>app_data.db</code>).</li>
+  </ul>
+</body>
+</html>

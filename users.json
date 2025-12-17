@@ -1,0 +1,22 @@
+{
+  "admin": {
+    "password_hash": "scrypt:32768:8:1$GzjtNT8ONmoAMlLl$512f6c5431725b7160ea6e9f3d3586586b6e62ca40ec169ce0a66e13c26912dc125ed7681ec89d2d61b1b16600066ec20052b35d4aca8dfdb18b6f4cb4cf141a",
+    "created_at": "2025-12-15T14:54:58.628627",
+    "is_admin": true,
+    "role": "admin"
+  },
+  "tejj@gmail.com": {
+    "password_hash": "scrypt:32768:8:1$zquEzfZqJ3sFtn9k$ac4b3268a10c5823f9e26cc9feae1f40d000a9b1927056d9c388bb6feb4e47b331101364c2b0173d9a3e8413385753f63ffcbd79368e8c5a1fa039305471ce58",
+    "name": "Tejaswini",
+    "phone": "8796546754",
+    "role": "user",
+    "created_at": "2025-12-15T14:59:18.149358"
+  },
+  "sowkya12@gmail.com": {
+    "password_hash": "scrypt:32768:8:1$APvLJX5UncxcGehA$34e292104c4508bbab0e46c1b00c5a5b997e91c853763168b003a176c539188d6c90e4505f2d090f9cb00fb80213db401332b71994f1473361d0c4a9eba27e21",
+    "name": "Sowkya",
+    "phone": "8796543421",
+    "role": "user",
+    "created_at": "2025-12-16T04:46:18.253476"
+  }
+}

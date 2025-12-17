@@ -1,0 +1,52 @@
+/* static/style.css */
+:root{
+  --bg:#ffffff;
+  --card:#f8f9fb;
+  --accent:#2c7be5;
+  --muted:#6b7280;
+  --border:#e6e9ef;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color: #111827;
+  margin: 0;
+  padding: 0;
+}
+
+.container { max-width: 980px; margin: 0 auto; padding: 20px; }
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+.header-inner { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; max-width:980px; margin:0 auto; }
+.brand strong { font-size:1.1rem; color:var(--accent); }
+.header-actions .btn { text-decoration:none; }
+
+.main { padding: 24px 20px; }
+
+.card { background: var(--card); padding: 18px; border-radius:8px; box-shadow: 0 1px 2px rgba(16,24,40,0.02); margin-bottom: 16px; }
+.card.large { min-height: 220px; }
+
+.btn {
+  display:inline-block; background:var(--accent); color:white; padding:10px 14px; border-radius:6px; text-decoration:none; border:none; cursor:pointer; font-weight:600;
+}
+.btn.ghost { background: transparent; color: var(--accent); border:1px solid var(--border); }
+
+.form label { display:block; margin-bottom:8px; font-size:0.95rem; }
+.form input[type="text"], .form input[type="password"], .form input[type="file"] {
+  width:100%; padding:8px 10px; margin-top:6px; border-radius:6px; border:1px solid var(--border);
+}
+
+.table { width:100%; border-collapse:collapse; margin-top:8px; }
+.table th, .table td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); }
+
+.home-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.flash-list .flash { padding:8px 12px; border-radius:6px; margin-bottom:8px; }
+.flash.success { background: #ecfdf5; color: #065f46; border:1px solid #bbf7d0; }
+.flash.danger { background:#fff1f2; color:#b91c1c; border:1px solid #fecaca; }
+.flash.warning { background:#fffbeb; color:#78350f; border:1px solid #fef3c7; }
+
+.site-footer { border-top: 1px solid var(--border); margin-top: 30px; padding:10px 0; text-align:center; color:var(--muted); }

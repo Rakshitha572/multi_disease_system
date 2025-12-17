@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Results{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- DOWNLOAD REPORT -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('download_report') }}"
+        class="btn btn-success">
+            <i class="fa-solid fa-file-pdf me-1"></i>
+            Download PDF Report
+        </a>
+    </div>
+
+    <h3 class="text-center mb-4">Prediction Results</h3>
+
+    {% if results %}
+    <!-- RESULTS TABLE -->
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Disease</th>
+                    <th>Probability (%)</th>
+                    <th>Prediction</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d, r in results.items() %}
+                <tr>
+                    <td>{{ d }}</td>
+                    <td>{{ "%.2f"|format(r.probability * 100) }}</td>
+                    <td>
+                        {% if r.prediction == 1 %}
+                            <span class="badge bg-danger">Positive</span>
+                        {% else %}
+                            <span class="badge bg-success">Negative</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- CHARTS -->
+    <div id="chartData"
+        data-labels='{{ labels | tojson }}'
+        data-values='{{ values | tojson }}'>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="col-md-6 mb-4">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SHAP -->
+    {% if shap_results and top_disease %}
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            Explainable AI – {{ top_disease }}
+        </div>
+        <div class="card-body">
+            <ul>
+                {% for p in shap_results[top_disease] %}
+                <li>{{ p }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+(function () {
+    const holder = document.getElementById("chartData");
+    if (!holder) return;
+
+    const labels = JSON.parse(holder.dataset.labels);
+    const values = JSON.parse(holder.dataset.values);
+
+    const bar = document.getElementById("barChart");
+    const line = document.getElementById("lineChart");
+
+    if (bar) {
+        new Chart(bar, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Probability (%)",
+                    data: values
+                }]
+            }
+        });
+    }
+
+    if (line) {
+        new Chart(line, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Probability Trend (%)",
+                    data: values,
+                    tension: 0.4
+                }]
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,38 @@
+<!-- templates/admin_view_user.html -->
+{% extends "base.html" %}
+{% block content %}
+  <div class="card">
+    <h1>User: {{ username }}</h1>
+    <p class="muted">Prediction history for this user (newest first)</p>
+
+    {% if history %}
+      <table>
+        <thead><tr><th>Timestamp</th><th>Top disease</th><th>Details</th></tr></thead>
+        <tbody>
+        {% for h in history %}
+          <tr>
+            <td class="small">{{ h.timestamp }}</td>
+            <td>
+              {% set vp = {} %}
+              {% for d,v in h.results.items() %}
+                {% if v.probability is defined and v.probability is not none %}
+                  {% set _ = vp.update({d: v.probability}) %}
+                {% endif %}
+              {% endfor %}
+              {% if vp %}
+                {% set top = vp|dictsort(true, '1')|first %}
+                {{ top[0] }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td><details><summary>View</summary><pre style="white-space:pre-wrap">{{ h.results|tojson(indent=2) }}</pre></details></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No history for this user.</p>
+    {% endif %}
+  </div>
+{% endblock %}

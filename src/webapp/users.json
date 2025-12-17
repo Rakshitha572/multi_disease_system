@@ -1,0 +1,42 @@
+{
+  "admin": {
+    "password_hash": "scrypt:32768:8:1$Z9tMIhNvWjNgafqo$ca92e28117882985dea0431f9f2cf81f4d3228b85b0bc5a6fde5669c76fd93108418074eac1fd65cba022e65a15cca8d2367bb868610bead8d178734c370df47",
+    "created_at": "2025-12-10T00:00:00Z",
+    "role": "admin",
+    "is_admin": true,
+    "contact": ""
+  },
+  "pavi": {
+    "password_hash": "scrypt:32768:8:1$hL1hHlxixR28B0XY$320641848d38b701d8040408553b6b92ec2a0a2af647526f4b0056b57f53897c04923b04c3953d3b75ca61422fcf4882f77fd17512740dac5a63e5bc18037c0c",
+    "fullname": "pavitra",
+    "contact": "987654678",
+    "role": "user",
+    "created_at": "2025-12-11T03:52:45.132104"
+  },
+  "kala": {
+    "password_hash": "scrypt:32768:8:1$W7HOoNNhxmekbgjg$96bf7f95c41d0ae4ddecd733e77c66b8e3782704e62ee2c464414ba5a32ba6a78b6db6390a70caa8c9a2f3ef852266847a11509a31f3364e120573b12f48724b",
+    "created_at": "2025-12-11T14:22:57.552534",
+    "is_admin": false,
+    "name": "Kalavathi",
+    "contact": "987654678"
+  },
+  "": {
+    "password_hash": "scrypt:32768:8:1$QIfY3c3y9dBD6Jud$16ab0883fc8b6e02fc9df9fd3690613f78449544c8838c8eff174700ffbbe32f0b27e8cdbb8e75d47b822ba2523dcd32f814c9691311c7850111585484ee1760",
+    "created_at": "2025-12-15T14:18:19.618894",
+    "is_admin": false
+  },
+  "tejj@gmail.com": {
+    "password_hash": "scrypt:32768:8:1$XkcPQRw0K3dL8lAu$15ac5e27e958ddce37cea20d9ba14361899b7f777945d20081ffb9420ce3690862c31a3863e46f289d9ecb56c9e49abf02959805247f73f120946bcf5262439c",
+    "name": "Tejaswini",
+    "phone": "8976543412",
+    "role": "user",
+    "created_at": "2025-12-15T14:24:48.416687"
+  },
+  "rakshithakumar7693@gmail.com": {
+    "password_hash": "scrypt:32768:8:1$CGIL4rsu0j8UY8Un$1e348149aafc4fc4f16c321da81f0424d030b5c2ff5b500657a0c346143b59df68f5087c77e326cb92d2c1bd9c6b52684af68ecccfdadffcbe9eb5dc52a28af2",
+    "name": "Rakshitha K",
+    "phone": "8796546754",
+    "role": "user",
+    "created_at": "2025-12-15T14:40:27.093042"
+  }
+}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .about-container {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        max-width: 900px;
+        margin: 0 auto;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 30px;
+        margin-bottom: 20px;
+        color: #222;
+        font-weight: 700;
+    }
+
+    .section {
+        margin-bottom: 30px;
+    }
+
+    .section h2 {
+        font-size: 22px;
+        color: #007bff;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .section p {
+        font-size: 16px;
+        color: #444;
+        line-height: 1.6;
+    }
+
+    ul {
+        padding-left: 22px;
+        margin-top: 10px;
+    }
+
+    ul li {
+        font-size: 15px;
+        color: #333;
+        margin-bottom: 6px;
+    }
+</style>
+
+<div class="about-container">
+
+    <h1>About the System</h1>
+
+    <div class="section">
+        <h2>Overview</h2>
+        <p>
+            The <strong>Ensemble-Based Multi-Disease Prediction System</strong> is a machine-learning-powered 
+            web application designed to predict multiple diseases using a single user-uploaded CSV file containing 
+            patient health attributes. 
+        </p>
+        <p>
+            The system uses ensemble models trained on medical datasets, and provides interpretability using 
+            SHAP-based feature explanations. Users receive disease-wise probabilities along with detailed PDF reports.
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>Diseases Predicted</h2>
+        <p>The system currently supports prediction of the following diseases:</p>
+        <ul>
+            <li><strong>Diabetes</strong> – based on glucose, BMI, pregnancy count, age, and other metabolic features.</li>
+            <li><strong>Heart Disease</strong> – based on chest pain type, blood pressure, cholesterol, ECG data, etc.</li>
+            <li><strong>Kidney Disease</strong> – based on hemoglobin level, blood pressure, albumin, etc.</li>
+            <li><strong>Parkinson’s Disease</strong> – based on vocal measurements such as jitter, shimmer, and frequency variations.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Key Features of the System</h2>
+        <ul>
+            <li>Simple and user-friendly CSV upload interface</li>
+            <li>Highly accurate ensemble ML prediction models</li>
+            <li>Detailed SHAP-based textual explanations</li>
+            <li>Downloadable PDF reports for each prediction</li>
+            <li>Admin dashboard for model retraining and user monitoring</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Who Can Use This System?</h2>
+        <p>
+            The platform is designed for:
+        </p>
+        <ul>
+            <li>General users who want to self-check medical risk levels</li>
+            <li>Doctors and medical students for analysis and study</li>
+            <li>Researchers and ML enthusiasts exploring medical predictions</li>
+        </ul>
+    </div>
+
+</div>
+
+{% endblock %}

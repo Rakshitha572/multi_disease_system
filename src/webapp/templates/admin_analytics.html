@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Admin Analytics{% endblock %}
+
+{% block content %}
+
+<h4 class="mb-4">Disease Prediction Analytics</h4>
+
+{% if disease_count and disease_count|length > 0 %}
+    <div style="max-width:600px;">
+        <canvas id="diseaseChart"
+                data-disease='{{ disease_count | tojson }}'>
+        </canvas>
+    </div>
+{% else %}
+    <p class="text-muted">No analytics data available.</p>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+(function () {
+
+    var canvas = document.getElementById("diseaseChart");
+    if (!canvas) return;
+
+    // Read data safely from HTML attribute
+    var diseaseData = JSON.parse(canvas.dataset.disease || "{}");
+
+    var labels = Object.keys(diseaseData);
+    var values = Object.values(diseaseData);
+
+    if (labels.length === 0) return;
+
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Positive Predictions",
+                data: values,
+                backgroundColor: "rgba(54, 162, 235, 0.6)"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+
+})();
+</script>
+
+{% endblock %}

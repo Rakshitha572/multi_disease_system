@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction | AI Disease Prediction{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h4 class="fw-bold mb-3">
+                    <i class="fa-solid fa-brain text-success me-2"></i>
+                    Generate Disease Prediction
+                </h4>
+
+                <p class="text-muted">
+                    Click the button below to analyze the uploaded dataset
+                    using trained machine learning models.
+                </p>
+
+                {% if message %}
+                    <div class="alert alert-info">
+                        {{ message }}
+                    </div>
+                {% endif %}
+
+                <!-- Prediction Info -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <i class="fa-solid fa-robot text-primary"></i>
+                            <p class="mb-0 mt-2 fw-semibold">ML Model</p>
+                            <small class="text-muted">Trained & Validated</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <i class="fa-solid fa-chart-line text-success"></i>
+                            <p class="mb-0 mt-2 fw-semibold">Prediction Type</p>
+                            <small class="text-muted">Multi-Disease</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center bg-light">
+                            <i class="fa-solid fa-shield-heart text-danger"></i>
+                            <p class="mb-0 mt-2 fw-semibold">Explainable AI</p>
+                            <small class="text-muted">SHAP Enabled</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predict Button -->
+                <form method="POST" action="/predict">
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="fa-solid fa-play me-2"></i>
+                        Run Prediction
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

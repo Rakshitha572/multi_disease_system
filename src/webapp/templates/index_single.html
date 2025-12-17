@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:720px;margin:auto">
+  <h2>Upload CSV for Prediction</h2>
+  <p class="muted">Upload a CSV where columns match feature names (case-insensitive). The system will predict using the first row for single-row preview, or return batch summary.</p>
+
+  <form action="{{ url_for('upload_predict') }}" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv,.pdf" required>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="primary" type="submit" style="background:var(--brand);color:#fff;padding:10px 14px;border-radius:8px;border:none">Upload & Predict</button>
+      <a href="{{ url_for('sample_csv') }}" style="padding:10px 14px;border-radius:8px;border:1px solid #eee;text-decoration:none">Download sample CSV</a>
+      <a href="{{ url_for('download_report') }}" style="padding:10px 14px;border-radius:8px;border:1px solid #eee;text-decoration:none">Download last report (TXT)</a>
+      <a href="{{ url_for('download_report') }}?format=pdf" style="padding:10px 14px;border-radius:8px;border:1px solid #eee;text-decoration:none">Download last report (PDF)</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

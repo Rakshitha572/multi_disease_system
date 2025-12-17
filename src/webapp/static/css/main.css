@@ -1,0 +1,33 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+.form-control {
+    border-radius: 8px;
+}
+
+.card {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card i {
+    opacity: 0.9;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    transition: 0.2s ease-in-out;
+}
+

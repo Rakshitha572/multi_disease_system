@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Records{% endblock %}
+
+{% block content %}
+<div class="container">
+
+<h3 class="fw-bold mb-3">Prediction Records</h3>
+
+<table class="table table-striped">
+    <thead class="table-light">
+        <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Timestamp</th>
+            <th>Top Predicted Disease</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for rec in records %}
+        {% set top = rec.results | dictsort(attribute='1.probability') | last %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ rec.username }}</td>
+            <td>{{ rec.timestamp }}</td>
+            <td>
+                <span class="badge bg-primary">
+                    {{ top[0] }}
+                </span>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('admin_export_report') }}" class="btn btn-success">
+    <i class="fa-solid fa-file-pdf"></i> Download Report
+</a>
+
+</div>
+{% endblock %}

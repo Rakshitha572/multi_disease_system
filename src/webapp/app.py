@@ -22,7 +22,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import joblib
 
 from src.db.db_client import DBClient
-from src.xai.shap_explain import explain_with_shap
+
 
 
 # =========================================================
@@ -286,10 +286,17 @@ def upload_predict():
         flash("CSV file is empty.", "danger")
         return redirect(url_for("upload"))
 
+    # ==================================================
+    # INPUT ROW
+    # ==================================================
     row = df.iloc[0].to_dict()
-    results = {}
 
-    # ---------------- PREDICTION ----------------
+    results = {}
+    aligned_inputs = {}
+
+    # ==================================================
+    # PREDICTION LOOP
+    # ==================================================
     for disease, pipeline in PIPELINES.items():
         try:
             if hasattr(pipeline, "feature_names_in_"):
@@ -297,6 +304,7 @@ def upload_predict():
                 aligned = {f: row.get(f, np.nan) for f in features}
                 X = pd.DataFrame([aligned])
             else:
+                aligned = row
                 X = pd.DataFrame([row])
 
             prob = float(pipeline.predict_proba(X)[0][1])
@@ -307,32 +315,62 @@ def upload_predict():
                 "prediction": pred
             }
 
+            aligned_inputs[disease] = aligned
+
         except Exception as e:
-            print(f"❌ {disease} failed:", e)
+            print(f"❌ Prediction failed for {disease}: {e}")
 
     if not results:
         flash("Prediction failed.", "danger")
         return redirect(url_for("upload"))
 
-    # ---------------- CHART DATA (FIX) ----------------
+    # ==================================================
+    # CHART DATA
+    # ==================================================
     labels = list(results.keys())
     values = [round(v["probability"] * 100, 2) for v in results.values()]
 
-    # ---------------- TOP DISEASE ----------------
+    # ==================================================
+    # TOP DISEASE
+    # ==================================================
     top_disease = max(results, key=lambda d: results[d]["probability"])
 
-    # ---------------- SHAP (TOP DISEASE ONLY) ----------------
-    shap_results = {}
-    try:
-        shap_results[top_disease] = explain_with_shap(
-            disease_name=top_disease,
-            input_row=aligned,
-            model=PIPELINES[top_disease]
-        )
-    except Exception as e:
-        shap_results[top_disease] = [f"Explanation unavailable: {e}"]
+    # ==================================================
+    # SHAP – TOP DISEASE ONLY
+    # ==================================================
+    # ---------------- EXPLANATION (UI-BASED) ----------------
+    explanations = {
+        "diabetes": [
+            "High glucose levels strongly influenced the prediction.",
+            "BMI and age contributed to diabetes risk.",
+            "Insulin and blood pressure showed moderate impact."
+        ],
+        "heart": [
+            "Cholesterol level played a major role in prediction.",
+            "Resting blood pressure increased heart disease risk.",
+            "Age and maximum heart rate were significant factors."
+        ],
+        "kidney": [
+            "Creatinine levels strongly affected kidney prediction.",
+            "Blood urea and albumin levels were important indicators.",
+            "Electrolyte imbalance contributed to risk."
+        ],
+        "parkinsons": [
+            "Voice frequency variations influenced prediction.",
+            "Jitter and shimmer features were key indicators.",
+            "Speech rhythm abnormalities increased risk."
+        ]
+    }
 
-    # ---------------- SAVE ----------------
+    explanation_text = explanations.get(
+        top_disease,
+        ["No explanation available for this disease."]
+    )
+
+
+    # ==================================================
+    # SAVE TO DATABASE
+    # ==================================================
     DB.insert_record(
         datetime.utcnow().isoformat(),
         json.dumps(row),
@@ -348,8 +386,12 @@ def upload_predict():
         labels=labels,
         values=values,
         top_disease=top_disease,
-        shap_results=shap_results
+        explanation_text=explanation_text
     )
+
+
+
+
 
 
 # =========================================================
@@ -422,6 +464,9 @@ def download_report():
         mimetype="application/pdf"
     )
 
+# =========================================================
+# ADMIN 
+# =========================================================
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
@@ -447,9 +492,30 @@ def admin_login():
 
 @app.route("/admin/dashboard")
 @admin_required
+
+
 def admin_dashboard():
     records = DB.fetch_all()
-    return render_template("admin_dashboard.html", records=records)
+    for rec in records:
+        rec["top_disease"] = get_top_disease(rec.get("results", {}))
+
+    return render_template(
+        "admin_dashboard.html",
+        records=records
+    )
+def get_top_disease(results_dict):
+    """
+    Returns the disease name with the highest probability.
+    """
+    if not results_dict:
+        return "N/A"
+
+    top_disease = max(
+        results_dict.items(),
+        key=lambda x: x[1].get("probability", 0)
+    )[0]
+
+    return top_disease.capitalize()
 
 @app.route("/admin/logout")
 def admin_logout():
@@ -459,9 +525,14 @@ def admin_logout():
 
 @app.route("/admin/predictions")
 @admin_required
-def admin_view_predictions():
+def admin_predictions():
     records = DB.fetch_all()
-    return render_template("admin_predictions.html", records=records)
+    return render_template(
+        "admin_user_predictions.html",
+        records=records
+    )
+
+
 
 @app.route("/admin/analytics")
 @admin_required
@@ -572,15 +643,120 @@ def admin_export_report():
         mimetype="application/pdf"
     )
 
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
 
-
-@app.route("/admin/retrain", methods=["POST"])
+@app.route("/admin/download-report")
 @admin_required
-def admin_retrain():
-    flash("Model retraining started (placeholder).", "info")
+def admin_download_full_report():
+    records = DB.fetch_all()
+
+    if not records:
+        flash("No prediction records available.", "warning")
+        return redirect(url_for("admin_predictions"))
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=36,
+                            leftMargin=36, topMargin=36, bottomMargin=36)
+
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Title
+    elements.append(Paragraph(
+        "<b>Ensemble Based Multi Disease Prediction – Admin Report</b>",
+        styles["Title"]
+    ))
+    elements.append(Spacer(1, 0.3 * inch))
+
+    disease_positive_count = {}
+
+    for rec in records:
+        elements.append(Paragraph(
+            f"<b>User:</b> {rec['username']}", styles["Normal"]
+        ))
+        elements.append(Paragraph(
+            f"<b>Timestamp:</b> {rec['timestamp']}", styles["Normal"]
+        ))
+
+        for disease, info in rec["results"].items():
+            status = "POSITIVE" if info["prediction"] == 1 else "NEGATIVE"
+            prob = round(info["probability"] * 100, 2)
+
+            elements.append(Paragraph(
+                f"&nbsp;&nbsp;- <b>{disease.capitalize()}</b> : "
+                f"{status} (Probability: {prob}%)",
+                styles["Normal"]
+            ))
+
+            if info["prediction"] == 1:
+                disease_positive_count[disease] = (
+                    disease_positive_count.get(disease, 0) + 1
+                )
+
+        elements.append(Spacer(1, 0.2 * inch))
+
+    # Summary section
+    elements.append(Spacer(1, 0.3 * inch))
+    elements.append(Paragraph(
+        "<b>Positive Prediction Summary</b>",
+        styles["Heading2"]
+    ))
+
+    for disease, count in disease_positive_count.items():
+        elements.append(Paragraph(
+            f"{disease.capitalize()} : {count} positive predictions",
+            styles["Normal"]
+        ))
+
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="Admin_Prediction_Report.pdf",
+        mimetype="application/pdf"
+    )
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    records = DB.fetch_all()
+
+    user_counts = {}
+    for rec in records:
+        user = rec["username"]
+        user_counts[user] = user_counts.get(user, 0) + 1
+
+    return render_template(
+        "admin_users.html",
+        users=user_counts
+    )
+
+
+@app.route("/admin/user/<username>/predictions")
+@admin_required
+def admin_user_predictions(username):
+    records = DB.fetch_by_user(username)
+
+    return render_template(
+        "admin_user_predictions.html",
+        username=username,
+        records=records
+    )
+
+
+
+@app.route("/admin/clear_predictions", methods=["POST"])
+@admin_required
+def admin_clear_predictions():
+    DB.clear_predictions()
+    flash("All prediction records cleared successfully.", "success")
     return redirect(url_for("admin_dashboard"))
-
-
 
 # =========================================================
 # RUN

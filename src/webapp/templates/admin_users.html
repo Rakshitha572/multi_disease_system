@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Users | Ensemble Based Multi Disease Prediction{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Registered Users</h2>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header fw-semibold">
+            User List
+        </div>
+
+        <div class="card-body p-0">
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Total Predictions</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ u.username }}</td>
+                            <td>{{ u.count }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_user_predictions', username=u.username) }}"
+                                class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-solid fa-eye"></i> View Predictions
+                                </a>
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted p-3">No users found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

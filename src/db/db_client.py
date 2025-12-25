@@ -99,3 +99,35 @@ class DBClient:
             return records
         finally:
             conn.close()
+
+    def clear_predictions(self):
+        conn = self._get_conn()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM predictions")
+        conn.commit()
+        conn.close()
+
+    def fetch_by_user(self, username):
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT username, timestamp, results FROM predictions WHERE username=? ORDER BY timestamp DESC",
+            (username,)
+        )
+
+        rows = cur.fetchall()
+        conn.close()
+
+        return [
+            {
+                "username": r["username"],
+                "timestamp": r["timestamp"],
+                "results": json.loads(r["results"])
+            }
+            for r in rows
+        ]
+
+
+

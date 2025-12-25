@@ -1,127 +1,169 @@
 {% extends "base.html" %}
 
-{% block title %}Prediction Results{% endblock %}
+{% block title %}Prediction Results | Ensemble Based Multi Disease Prediction{% endblock %}
 
 {% block content %}
+
 <div class="container">
 
-    <!-- DOWNLOAD REPORT -->
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ url_for('download_report') }}"
-        class="btn btn-success">
-            <i class="fa-solid fa-file-pdf me-1"></i>
-            Download PDF Report
+    <!-- ================= HEADER ================= -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Prediction Results</h2>
+
+        <a href="{{ url_for('download_report') }}" class="btn btn-outline-success">
+            <i class="fa-solid fa-file-pdf"></i> Download Report
         </a>
     </div>
 
-    <h3 class="text-center mb-4">Prediction Results</h3>
-
-    {% if results %}
-    <!-- RESULTS TABLE -->
-    <div class="table-responsive mb-4">
-        <table class="table table-bordered text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>Disease</th>
-                    <th>Probability (%)</th>
-                    <th>Prediction</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for d, r in results.items() %}
-                <tr>
-                    <td>{{ d }}</td>
-                    <td>{{ "%.2f"|format(r.probability * 100) }}</td>
-                    <td>
-                        {% if r.prediction == 1 %}
-                            <span class="badge bg-danger">Positive</span>
-                        {% else %}
-                            <span class="badge bg-success">Negative</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- ================= TOP DISEASE ================= -->
+    <div class="alert alert-info text-center fw-semibold">
+        Top Predicted Disease:
+        <span class="text-danger fw-bold">
+            {{ top_disease | capitalize }}
+        </span>
     </div>
 
-    <!-- CHARTS -->
-    <div id="chartData"
-        data-labels='{{ labels | tojson }}'
-        data-values='{{ values | tojson }}'>
+    <!-- ================= RESULTS TABLE ================= -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold bg-light">
+            Prediction Summary
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0 text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Disease</th>
+                            <th>Probability (%)</th>
+                            <th>Prediction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for disease, data in results.items() %}
+                        <tr>
+                            <td>{{ disease | capitalize }}</td>
+                            <td>{{ (data.probability * 100) | round(2) }}</td>
+                            <td>
+                                {% if data.prediction == 1 %}
+                                    <span class="badge bg-danger">Positive</span>
+                                {% else %}
+                                    <span class="badge bg-success">Negative</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <canvas id="barChart"></canvas>
-        </div>
-        <div class="col-md-6 mb-4">
-            <canvas id="lineChart"></canvas>
-        </div>
-    </div>
-    {% endif %}
+    <script type="application/json" id="chart-data">
+        {
+        "labels": {{ labels | tojson }},
+        "values": {{ values | tojson }}
+        }
+    </script>
 
-    <!-- SHAP -->
-    {% if shap_results and top_disease %}
-    <div class="card mt-4">
-        <div class="card-header bg-primary text-white">
-            Explainable AI – {{ top_disease }}
+    <!-- ================= CHARTS ================= -->
+    <div class="row mb-4">
+
+        <!-- BAR CHART -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold bg-light">
+                    Disease Probability (Bar Chart)
+                </div>
+                <div class="card-body">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
         </div>
+
+        <!-- LINE CHART -->
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold bg-light">
+                    Disease Probability Trend (Line Chart)
+                </div>
+                <div class="card-body">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= EXPLAINABLE AI ================= -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-bold bg-light">
+            Explainable AI – {{ top_disease | capitalize }} Prediction
+        </div>
+
         <div class="card-body">
-            <ul>
-                {% for p in shap_results[top_disease] %}
-                <li>{{ p }}</li>
+            <ul class="mb-0">
+                {% for point in explanation_text %}
+                    <li>{{ point }}</li>
                 {% endfor %}
             </ul>
         </div>
     </div>
-    {% endif %}
 
 </div>
+
 {% endblock %}
 
 {% block scripts %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-(function () {
-    const holder = document.getElementById("chartData");
-    if (!holder) return;
+    const chartData = JSON.parse(
+        document.getElementById("chart-data").textContent
+    );
 
-    const labels = JSON.parse(holder.dataset.labels);
-    const values = JSON.parse(holder.dataset.values);
+    const chartLabels = chartData.labels;
+    const chartValues = chartData.values;
 
-    const bar = document.getElementById("barChart");
-    const line = document.getElementById("lineChart");
-
-    if (bar) {
-        new Chart(bar, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Probability (%)",
-                    data: values
-                }]
+    new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: "Probability (%)",
+                data: chartValues,
+                backgroundColor: "#0d6efd"
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
             }
-        });
-    }
+        }
+    });
 
-    if (line) {
-        new Chart(line, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Probability Trend (%)",
-                    data: values,
-                    tension: 0.4
-                }]
+    new Chart(document.getElementById("lineChart"), {
+        type: "line",
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: "Probability (%)",
+                data: chartValues,
+                borderColor: "#dc3545",
+                tension: 0.3,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
             }
-        });
-    }
-})();
+        }
+    });
 </script>
-{% endblock %}
 
+{% endblock %}
 

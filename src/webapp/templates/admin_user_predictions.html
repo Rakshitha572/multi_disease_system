@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}User Predictions | Admin{% endblock %}
+
+{% block content %}
+
+<div class="mb-3 text-end">
+    <a href="{{ url_for('admin_download_full_report') }}"
+       class="btn btn-outline-success">
+        <i class="fa-solid fa-file-arrow-down"></i> Download Full Report
+    </a>
+</div>
+
+<div class="container">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">Prediction Records – {{ username }}</h3>
+
+        <a href="{{ url_for('admin_dashboard') }}"
+           class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    {% if records %}
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-semibold">
+            Prediction Records
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>User</th>
+                            <th>Timestamp</th>
+                            <th>Diseases Predicted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in records %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ rec.username }}</td>
+                            <td>{{ rec.timestamp }}</td>
+                            <td>
+                                {% set top_disease = namespace(name=None, prob=0) %}
+
+                                {% for disease, info in rec.results.items() %}
+                                    {% if info.prediction == 1 and info.probability > top_disease.prob %}
+                                        {% set top_disease.name = disease %}
+                                        {% set top_disease.prob = info.probability %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if top_disease.name %}
+                                    <span class="badge bg-secondary">
+                                        {{ top_disease.name | capitalize }}
+                                    </span>
+                                {% else %}
+                                    {% set fallback = namespace(name=None, prob=0) %}
+                                    {% for disease, info in rec.results.items() %}
+                                        {% if info.probability > fallback.prob %}
+                                            {% set fallback.name = disease %}
+                                            {% set fallback.prob = info.probability %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="badge bg-secondary">
+                                        {{ fallback.name | capitalize }}
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <p class="text-muted">No predictions found for this user.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}
